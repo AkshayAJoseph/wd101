@@ -134,9 +134,6 @@ const saveUserForm = (event) => {
     }
     displayEntries();
 
-    // Clear form after successful submission
-    userForm.reset();
-    console.log("Form reset");
 };
 
 userForm.addEventListener("submit", saveUserForm);

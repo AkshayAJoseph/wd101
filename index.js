@@ -1,87 +1,69 @@
-let userForm = document.getElementById("user_form");
 
-const retrieveEntries = () => {
-    let entries = localStorage.getItem("user-entries");
-    if (entries) {
-        entries = JSON.parse(entries);
-    } else {
-        entries = [];
-    }
-    return entries;
+function getEntries() {
+  return JSON.parse(localStorage.getItem("entries") || "[]");
 }
 
-let userEntries = retrieveEntries();
+function saveEntries(entries) {
+  localStorage.setItem("entries", JSON.stringify(entries));
+}
 
-const displayEntries = () => {
-    const entries = retrieveEntries();
+function renderEntries() {
+  const tableBody = document.querySelector("#entriesTable tbody");
+  tableBody.innerHTML = "";
+  const entries = getEntries();
+  entries.forEach((entry) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${entry.name}</td>
+      <td>${entry.email}</td>
+      <td>${entry.password}</td>
+      <td>${entry.dob}</td>
+      <td>${entry.accepted}</td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
 
-    const tableEntries = entries.map((entry) => {
-        const nameCell = `<td>${entry.name}</td>`;
-        const emailCell = `<td>${entry.email}</td>`;
-        const passwordCell = `<td>${entry.password}</td>`;
-        const dobCell = `<td>${entry.dob}</td>`;
-        const termsCell = `<td>${entry.terms}</td>`;
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
-        const row = `<tr>${nameCell}${emailCell}${passwordCell}${dobCell}${termsCell}</tr>`;
-        return row;
-    }).join('\n');
+function isValidAge(dob) {
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age >= 18 && age <= 55;
+}
 
-    const table = `
-    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-        <thead>
-            <tr style="background-color: #f9fafb; text-align: left;">
-                <th style="border: 1px solid #ddd; padding: 8px;">Name</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Email</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Password</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">dob</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">accepted terms?</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${tableEntries}
-        </tbody>
-    </table>`;
-
-    const details = document.getElementById("user-entries");
-    details.innerHTML = table;
-};
-
-
-const saveUserForm = (event) => {
+document.addEventListener("DOMContentLoaded", function () {
+  renderEntries();
+  const form = document.getElementById("registrationForm");
+  form.addEventListener("submit", function (event) {
     event.preventDefault();
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
-    const dobInput = document.getElementById("dob");
-    const dob = dobInput.value;
-    const terms = document.getElementById("terms").checked;
+    const dob = document.getElementById("dob").value;
+    const accepted = document.getElementById("acceptTerms").checked;
 
-    // Date validation for age between 18 and 55
-    const today = new Date();
-    const year = today.getFullYear();
-    const minDate = new Date(`${year - 55}-01-01`);
-    const maxDate = new Date(`${year - 18}-12-31`);
-    const dobValue = new Date(dob);
-
-    if (dobValue < minDate || dobValue > maxDate) {
-        dobInput.setCustomValidity(`Date of Birth should be between ${minDate.toISOString().slice(0, 10)} and ${maxDate.toISOString().slice(0, 10)}.`);
-        dobInput.reportValidity();
-        return;
-    } else {
-        dobInput.setCustomValidity("");
+    if (!isValidEmail(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    if (!isValidAge(dob)) {
+      alert("Age must be between 18 and 55 years.");
+      return;
     }
 
-    const entry = {
-        name,
-        email,
-        password,
-        dob,
-        terms
-    };
-
-    userEntries.push(entry);
-    localStorage.setItem("user-entries", JSON.stringify(userEntries));
-    displayEntries();
-}
-userForm.addEventListener("submit", saveUserForm);
-displayEntries();
+    const entry = { name, email, password, dob, accepted };
+    const entries = getEntries();
+    entries.push(entry);
+    saveEntries(entries);
+    renderEntries();
+    form.reset();
+  });
+});

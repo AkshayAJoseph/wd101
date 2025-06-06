@@ -16,6 +16,7 @@
       font-family: Arial, sans-serif;
     }
 
+
     .form-container {
       background: white;
       padding: 30px 40px;
@@ -70,14 +71,11 @@
     button:hover {
       background-color: #178900;
     }
-
-    input#name:invalid {
-      border: 1px solid rgb(255, 0, 0);
-    }
   </style>
 </head>
 
 <body>
+
   <div class="form-container">
     <h2>Registration Form</h2>
     <form id="user_form">
@@ -101,29 +99,17 @@
       <button type="submit">Submit</button>
     </form>
   </div>
-
-  <div class="entries-container" style="
-    background: white;
-    padding: 30px 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 800px;
-    margin: 30px auto;
-  ">
-    <h2 style="
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    ">Entries</h2>
-
-    <div id="user-entries"></div>
-  </div>
-
+  <style>
+    input#name:invalid {
+      border-color: 1px solid rgb(255, 0, 0);
+    }
+  </style>
   <script>
     const email = document.getElementById('email');
     email.addEventListener('input', () => validate(email));
+
+    const submit = document.getElementById('submit');
+    submit.addEventListener('click', () => validate(email));
 
     function validate(element) {
       if (element.validity.typeMismatch) {
@@ -134,8 +120,27 @@
       }
     }
   </script>
+  <div class="entries-container" style="
+  background: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 800px;
+  margin: 30px auto;
+  ">
+    <h2 style="
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+  ">Entries</h2>
+
+    <div id="user-entries"></div>
+  </div>
 
   <script src="./index.js"></script>
+
 </body>
 
 </html>

@@ -47,6 +47,20 @@ const displayEntries = () => {
 };
 
 
+window.addEventListener("DOMContentLoaded", () => {
+    const dobInput = document.getElementById("dob");
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    // Max: 18 years ago from today
+    const max = `${yyyy - 18}-${mm}-${dd}`;
+    // Min: 55 years ago from today
+    const min = `${yyyy - 55}-${mm}-${dd}`;
+    dobInput.setAttribute("min", min);
+    dobInput.setAttribute("max", max);
+});
+
 const saveUserForm = (event) => {
     event.preventDefault();
     const name = document.getElementById("name").value;
@@ -56,15 +70,17 @@ const saveUserForm = (event) => {
     const dob = dobInput.value;
     const terms = document.getElementById("terms").checked;
 
-    // Date validation for age between 18 and 55
+    // Calculate age precisely
+    const dobDate = new Date(dob);
     const today = new Date();
-    const year = today.getFullYear();
-    const minDate = new Date(`${year - 55}-01-01`);
-    const maxDate = new Date(`${year - 18}-12-31`);
-    const dobValue = new Date(dob);
+    let age = today.getFullYear() - dobDate.getFullYear();
+    const m = today.getMonth() - dobDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
+        age--;
+    }
 
-    if (dobValue < minDate || dobValue > maxDate) {
-        dobInput.setCustomValidity(`Date of Birth should be between ${minDate.toISOString().slice(0, 10)} and ${maxDate.toISOString().slice(0, 10)}.`);
+    if (age < 18 || age > 55) {
+        dobInput.setCustomValidity("Age must be between 18 and 55 years.");
         dobInput.reportValidity();
         return;
     } else {
